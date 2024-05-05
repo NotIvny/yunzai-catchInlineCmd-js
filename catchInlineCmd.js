@@ -51,11 +51,13 @@ export class Inlinecmd extends plugin {
     }
     if(cmd){
       e.reply(`检测到inlinecmd！command: ${decodeURIComponent(cmd)}，请注意甄别`)
+      return false
     }
     const regex = /(?<=command=)(.*)(?=&reply)/;
     const command = matchmsg.match(regex);
     if(command){
       e.reply(`检测到inlinecmd！command: ${command[0]}，请注意甄别`)
+      return false
     }
   }
 }
