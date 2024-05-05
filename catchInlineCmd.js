@@ -3,16 +3,31 @@ export class Inlinecmd extends plugin {
     super({
       name: '侦测inlinecmd',
       event: 'message',
-      priority: 5000,
+      priority: 0,
       rule: [
         {
           reg: /^(.*)mqqapi:\/\/aio\/inlinecmd\?command=(.*)/,
           fnc: 'catchInlineCmd'
         },
+        {
+          reg: /^(.*)/,
+          fnc: 'catchMarkdown',
+          log: false
+        },
       ]
     })
   }
-  async catchInlineCmd(e){
+  async catchMarkdown(e){
+    if(e.message[0] && e.message[0].type && e.message[0].type == "markdown"){
+      const regex = /(?<=command=)(.*)(?=&reply)/;
+      const command = e.message[0].content.match(regex);
+      if(command){
+        this.catchInlineCmd(e, command)
+      }
+    }
+    return false
+  }
+  async catchInlineCmd(e, cmd = ''){
     if(e.isPrivate){
         return false
     }
@@ -34,8 +49,13 @@ export class Inlinecmd extends plugin {
     if(BotUser.length > 0 && BotUser.includes(e.user_id)){
         return false
     }
+    if(cmd){
+      e.reply(`检测到inlinecmd！command: ${decodeURIComponent(cmd)}，请注意甄别`)
+    }
     const regex = /(?<=command=)(.*)(?=&reply)/;
-    const command = e.msg.match(regex);
-    e.reply(`检测到inlinecmd！command: ${command[0]}，请注意甄别`)
+    const command = matchmsg.match(regex);
+    if(command){
+      e.reply(`检测到inlinecmd！command: ${command[0]}，请注意甄别`)
+    }
   }
 }
